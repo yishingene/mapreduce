@@ -13,9 +13,10 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 public class Dalidist {
         
  public static class Map extends Mapper<LongWritable, Text, Text, MapWritable> {
- 
-    public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
     private MapWritable arry = new MapWritable();
+    private Text keydate = new Text();
+    public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
+    
     String line = value.toString();
     StringTokenizer tokenizer = new StringTokenizer(line,",");
     int position=0;
@@ -25,7 +26,7 @@ public class Dalidist {
         position ++;
         count++;
         if (count==1){String keydate=token;}
-        arry.put(new IntWritable(position),token);
+        arry.put(new IntWritable(position),new Text(token));
 
         
     }
@@ -38,7 +39,7 @@ public class Dalidist {
     public void reduce(Text key, Iterable<MapWritable> arry, Context context) 
       throws IOException, InterruptedException {
         for (MapWritable ar : arry) {
-            context.write(new Text(key), ((Text)ar.get(new IntWritable(0))).get());
+            context.write(new Text(key), ((Text)ar.get(0)));
         }
   }
 }      
