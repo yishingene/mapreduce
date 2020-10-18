@@ -21,13 +21,15 @@ public class Dalidist {
     StringTokenizer tokenizer = new StringTokenizer(line,",");
     int position=0;
     int count=0;
+    Float f = new Float("20.75f");
     while (tokenizer.hasMoreTokens()) {
         String token = tokenizer.nextToken();
         position ++;
         count++;
         if (count==1){String keydate=token;}
-        double tmpparse = Double.parseDouble(token);
-        arry.put(new IntWritable(position),new DoubleWritable(tmpparse));
+        Float tmpparse = f.parseFloat(token);
+        if (count==4){arry.put(new IntWritable(0),new FloatWritable(tmpparse));}
+        
 
         
     }
@@ -36,24 +38,27 @@ public class Dalidist {
 
  } 
 }       
- public static class Reduce extends Reducer<Text, MapWritable, Text, DoubleWritable> {
+ public static class Reduce extends Reducer<Text, MapWritable, Text, FloatWritable> {
     public void reduce(Text key, Iterable<MapWritable> arry, Context context) 
       throws IOException, InterruptedException {
         for (MapWritable ar : arry) {
-            double tmp = ((DoubleWritable)ar.get(new IntWritable(0))).get();
-            context.write(new Text(key), new DoubleWritable(tmp));
+            System.out.println(ar);
+            Float tmp = ((FloatWritable)ar.get(new IntWritable(0))).get();
+            context.write(new Text(key), new FloatWritable(tmp));
         }
   }
 }      
+ 
  public static void main(String[] args) throws Exception {
     Configuration conf = new Configuration();
         
-        Job job = new Job(conf, "dali");
+        Job job = new Job(conf, "dalidist");
     
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(IntWritable.class);
     job.setMapOutputValueClass(MapWritable.class); // array 
-    job.setOutputValueClass(DoubleWritable.class);   
+    job.setOutputValueClass(DoubleWritable.class); 
+    job.setOutputValueClass(FloatWritable.class);    
     job.setMapperClass(Map.class);
     job.setReducerClass(Reduce.class);
     job.setJarByClass(WordCount.class);

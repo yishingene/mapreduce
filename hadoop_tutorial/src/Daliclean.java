@@ -46,9 +46,11 @@ public class Daliclean {
             } 
             // if (count>3 && token.trim().equals("NR")){token="0";}
             // if (count>3 && toke1.split 如過遇到 # 就刪除掉這個字元, 然後再合併寫回token)
-            
-            line1 += prefix + token;
-            prefix = ",";
+            if (count <2 || count >3) {
+                line1 += prefix + token;
+                prefix = ",";
+            }
+
         }
         context.write(new Text("whatever"), new Text(line1));
     // public void cleanup(Context context) throws IOException, InterruptedException {

@@ -19,13 +19,21 @@ public class Dali {
         // if line contain '大里' then keep line else delete;
         String delimiter = ","; 
         String line = value.toString();
+        int count =0;
         StringTokenizer tokenizer = new StringTokenizer(line,delimiter);
         while (tokenizer.hasMoreTokens()) {
             String token = tokenizer.nextToken();
             if (token.equals("大里")){
-                context.write(new Text("dali"), new Text(line));
+               count += 1;
             }
-            
+            if (token.equals("PM2.5")){
+                count += 1;
+            }
+            if (count == 2) {
+                context.write(new Text("dali"), new Text(line));
+                count = 0;
+
+            }
     }
 
     // public void cleanup(Context context) throws IOException, InterruptedException {
