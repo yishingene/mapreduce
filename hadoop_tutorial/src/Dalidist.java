@@ -26,7 +26,8 @@ public class Dalidist {
         position ++;
         count++;
         if (count==1){String keydate=token;}
-        arry.put(new IntWritable(position),new Text(token));
+        double tmpparse = Double.parseDouble(token);
+        arry.put(new IntWritable(position),new DoubleWritable(tmpparse));
 
         
     }
@@ -35,11 +36,12 @@ public class Dalidist {
 
  } 
 }       
- public static class Reduce extends Reducer<Text, MapWritable, Text, Text> {
+ public static class Reduce extends Reducer<Text, MapWritable, Text, DoubleWritable> {
     public void reduce(Text key, Iterable<MapWritable> arry, Context context) 
       throws IOException, InterruptedException {
         for (MapWritable ar : arry) {
-            context.write(new Text(key), ((Text)ar.get(0)));
+            double tmp = ((DoubleWritable)ar.get(new IntWritable(0))).get();
+            context.write(new Text(key), new DoubleWritable(tmp));
         }
   }
 }      
@@ -50,7 +52,8 @@ public class Dalidist {
     
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(IntWritable.class);
-    job.setMapOutputValueClass(MapWritable.class); // array    
+    job.setMapOutputValueClass(MapWritable.class); // array 
+    job.setOutputValueClass(DoubleWritable.class);   
     job.setMapperClass(Map.class);
     job.setReducerClass(Reduce.class);
     job.setJarByClass(WordCount.class);
