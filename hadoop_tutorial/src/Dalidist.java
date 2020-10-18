@@ -12,56 +12,33 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
         
 public class Dalidist {
         
- public static class Map extends Mapper<LongWritable, Text, Text, Text> {
+ public static class Map extends Mapper<LongWritable, Text, Text, MapWritable> {
  
     public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
-        // private MapWritable arry = new MapWritable();
-        // if line contain '大里' then keep line else delete;
-        String delimiter = ","; 
-        String line = value.toString();
-        StringTokenizer tokenizer = new StringTokenizer(line,delimiter);
-        int count = 0;
-        String line1="";
-        String prefix = "";
-        while (tokenizer.hasMoreTokens()) {
-            String token = tokenizer.nextToken();
-            count += 1;
-            if (count>3) {
-                if (token.trim().equals("NR")){
-                    token="0";
-                }
-                String rtoken = "";
-                String[] tokens = token.split("");
-                    for (String ele:tokens) {
-                        if (ele.equals("#")){ ele = "";}
-                        if (ele.equals("*")){ ele = "";}
-                        if (ele.equals("/")){ ele = "";}
-                        if (ele.equals("_")){ ele = "";}
-                        if (ele.equals("x")){ ele = "";}
+    private MapWritable arry = new MapWritable();
+    String line = value.toString();
+    StringTokenizer tokenizer = new StringTokenizer(line,",");
+    int position=0;
+    int count=0;
+    while (tokenizer.hasMoreTokens()) {
+        String token = tokenizer.nextToken();
+        position ++;
+        count++;
+        if (count==1){String keydate=token;}
+        arry.put(new IntWritable(position),token);
 
-                        rtoken +=ele;
-
-                    }
-                token = rtoken;
-            } 
-            // if (count>3 && token.trim().equals("NR")){token="0";}
-            // if (count>3 && toke1.split 如過遇到 # 就刪除掉這個字元, 然後再合併寫回token)
-            
-            line1 += prefix + token;
-            prefix = ",";
-        }
-        context.write(new Text("whatever"), new Text(line1));
-    // public void cleanup(Context context) throws IOException, InterruptedException {
-    //    context.write(new Text("dali"), new Text(line));
-    // }
+        
+    }
+    context.write(keydate, arry);
+ 
 
  } 
 }       
- public static class Reduce extends Reducer<Text, Text, Text, Text> {
-    public void reduce(Text key, Iterable<Text> values, Context context) 
+ public static class Reduce extends Reducer<Text, MapWritable, Text, Text> {
+    public void reduce(Text key, Iterable<MapWritable> arry, Context context) 
       throws IOException, InterruptedException {
-        for (Text reading : values) {
-            context.write(new Text(reading), new Text());
+        for (MapWritable ar : arry) {
+            context.write(new Text(key), ((Text)ar.get(new IntWritable(0))).get());
         }
   }
 }      
@@ -71,8 +48,8 @@ public class Dalidist {
         Job job = new Job(conf, "dali");
     
     job.setOutputKeyClass(Text.class);
-    // job.setOutputValueClass(IntWritable.class);
-        
+    job.setOutputValueClass(IntWritable.class);
+    job.setMapOutputValueClass(MapWritable.class); // array    
     job.setMapperClass(Map.class);
     job.setReducerClass(Reduce.class);
     job.setJarByClass(WordCount.class);
