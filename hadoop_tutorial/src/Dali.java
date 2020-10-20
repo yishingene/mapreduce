@@ -19,7 +19,7 @@ public class Dali {
         // if line contain '大里' then keep line else delete;
         String delimiter = ","; 
         String line = value.toString();
-        int count =0;
+        int count =0; //利用 count 控制欄位
         StringTokenizer tokenizer = new StringTokenizer(line,delimiter);
         while (tokenizer.hasMoreTokens()) {
             String token = tokenizer.nextToken();
